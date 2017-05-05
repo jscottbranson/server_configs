@@ -1,7 +1,7 @@
 #!/bin/bash
-cd ~/server_confs
-ln -sf .vimrc ~/.vimrc
-ln -sf .tmux.conf ~/.tmux.conf
-chmod 500 ~/.vimrc
-chmod 500 ~/.tmux
+cd /root/server_confs
+ln -sf .vimrc /root/.vimrc
+ln -sf .tmux.conf /root/.tmux.conf
+chmod 500 /root/.vimrc
+chmod 500 /root/.tmux
 echo If there weren\'t any error messages, then all symbolic links were created successfully.
