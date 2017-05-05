@@ -7,7 +7,7 @@ set t_Co=256				"Enable 256 bit color
 set background=dark			"Tells Vim that the background color is black
 filetype indent plugin on	"Automatic detection, indenting, and highlighting based on file type
 syntax enable				"Turns on syntax highlighting
-#colorscheme southernlights	"Defines the scheme for syntax highlighting
+"colorscheme southernlights	"Defines the scheme for syntax highlighting
 set nocompatible			"Use Vim defaults
 set wildmenu				"Automatically complete :commands by pressing tab
 set cmdheight=2				"Set the command line height to two lines
