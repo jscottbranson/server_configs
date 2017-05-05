@@ -1,0 +1,4 @@
+#!/bin/bash
+ln -sf ~/.server_configs/.vimrc ~/.vimrc
+ln -sf ~/.server_configs/.tmux.conf ~/.tmux.conf
+echo If there weren\'t any error messages, then all symbolic links were created successfully.
