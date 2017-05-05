@@ -1,4 +1,5 @@
 #!/bin/bash
-ln -sf ~/.server_configs/.vimrc ~/.vimrc
-ln -sf ~/.server_configs/.tmux.conf ~/.tmux.conf
+cd "${0%/*}"
+ln -sf .vimrc ~/.vimrc
+ln -sf .tmux.conf ~/.tmux.conf
 echo If there weren\'t any error messages, then all symbolic links were created successfully.
