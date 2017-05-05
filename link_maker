@@ -2,4 +2,6 @@
 cd ~/server_confs
 ln -sf .vimrc ~/.vimrc
 ln -sf .tmux.conf ~/.tmux.conf
+chmod 500 .vimrc
+chmod 500 .tmux
 echo If there weren\'t any error messages, then all symbolic links were created successfully.
