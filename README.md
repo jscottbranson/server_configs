@@ -1,2 +1,1 @@
-# server_confs
-Basic configuration files for servers
+Server configuration files

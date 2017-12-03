@@ -1,18 +1,31 @@
 #!/bin/bash
-#Variables
-SERVER_IP="45.76.22.18"
-SERVER_IP6="2001:19f0:5c01:348:2f84:c1ea:7888:8498"
-INTRANET_IP="10.99.0.0/26"
+
+#--------------------------------- VARIABLES ---------------------------------# 
+## Device name & IP address for the server's WAN connection
+INTERNET_INTERFACE="eth0"
+SERVER_IP="xxx.xxx.xxx.xxx"
+SERVER_IP6="xxx:xxxx::"
+
+## Device name & IP address for the server's LAN connection
+INTRANET_INTERFACE="eth1"
+INTRANET_IP="10.xx.xx.xx/24"
+
+## Loopback
 LOOPBACK_IP="127.0.0.0/8"
 LOOPBACK_IP6="::1/128"
-VPN_IP="10.8.0.0/8"
-VPN_IP6="fdb9:eb8d:aaa6:a555::/64"
-VPN_IP_PUB="45.76.29.48"
+
+## VPN
+VPN_IP="10.xx.xx.xxx/24"		#VPN Server's subnet
+VPN_IP6="fdb9:xxxx:xxxxl::/72"
+VPN_IP_PUB="xx.xx.xx.xx"		#VPN server's public IP
 
 LOOPBACK_INTERFACE="lo"
-INTERNET_INTERFACE="eth0"
-INTRANET_INTERFACE="eth1"
 PERSONAL_TUNNEL="tun0"
+
+#--------------------------------- POLICIES ---------------------------------# 
+
+####-------------------------------------------------------
+#Universally applicable policies
 
 #Flush existing rules
 iptables --flush
@@ -71,50 +84,36 @@ ip6tables -I FORWARD -m rt --rt-type 0 -j DROP
 ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 
 ####-------------------------------------------------------
-#Allow specific incoming connections
-
-###SSH
-iptables -A INPUT -i $INTERNET_INTERFACE -s $VPN_IP_PUB -p tcp  --dport 22 -m state --state NEW -j ACCEPT
-iptables -A INPUT -i $INTERNET_INTERFACE -s $VPN_IP -p tcp  --dport 22 -m state --state NEW -j ACCEPT
-
-###HTML
-#iptables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 80 -m state --state NEW -j ACCEPT
-#iptables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 443 -m state --state NEW -j ACCEPT
-
-#ip6tables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 80 -m state --state NEW -j ACCEPT
-#ip6tables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 443 -m state --state NEW -j ACCEPT
-
-###Email
-#iptables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 25 -m state --state NEW -j ACCEPT
-#iptables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 587 -m state --state NEW -j ACCEPT
-#iptables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 993 -m state --state NEW -j ACCEPT
-
-#ip6tables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 25 -m state --state NEW -j ACCEPT
-#ip6tables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 587 -m state --state NEW -j ACCEPT
-#ip6tables -A INPUT -i $INTERNET_INTERFACE -s -p tcp  --dport 993 -m state --state NEW -j ACCEPT
+#Server specific incoming connections
+##SSH
+iptables -A INPUT -i $PERSONAL_TUNNEL -s $VPN_IP -p tcp  --dport 22 -m state --state NEW -j ACCEPT
 
 ####-------------------------------------------------------
 #Allow specific outgoing connections
-##HTML
+
+#####---------------Intranet
+##VPN Server
+iptables -I OUTPUT -o $INTRANET_INTERFACE -p udp --dport 1194 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTRANET_INTERFACE -p udp --dport 1194 -m state --state NEW -j ACCEPT
+
+#####---------------Internet
+##Send Email
+iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
+
+##HTTP
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
 
-##Encrypted HTML
+##Encrypted HTTP
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
 
-#Email
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 993 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 993 -m state --state NEW -j ACCEPT
-
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 587 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 587 -m state --state NEW -j ACCEPT
-
-##DNS Servers
+##DNS servers
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 53 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 53 -m state --state NEW -j ACCEPT
 
-#Systems ports
+#System ports
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NEW -j ACCEPT
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
