@@ -17,7 +17,7 @@ LOOPBACK_IP6="::1/128"
 ## VPN
 VPN_IP="10.xx.xx.xxx/24"		#VPN Server's subnet
 VPN_IP6="fdb9:xxxx:xxxxl::/72"
-VPN_IP_PUB="xx.xx.xx.xx"		#VPN server's public IP
+VPN_SERVER="xx.xx.xx.xx"		#VPN server's IP
 
 LOOPBACK_INTERFACE="lo"
 PERSONAL_TUNNEL="tun0"
@@ -86,40 +86,46 @@ ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 ####-------------------------------------------------------
 #Server specific incoming connections
 ##SSH
-iptables -A INPUT -i $PERSONAL_TUNNEL -s $VPN_IP -p tcp  --dport 22 -m state --state NEW -j ACCEPT
+iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp  --dport 22 -m state --state NEW -j ACCEPT
+
+##Rippled
+iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp  --dport 51235 -m state --state NEW -j ACCEPT
 
 ####-------------------------------------------------------
 #Allow specific outgoing connections
 
 #####---------------Intranet
-##VPN Server
-iptables -I OUTPUT -o $INTRANET_INTERFACE -p udp --dport 1194 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTRANET_INTERFACE -p udp --dport 1194 -m state --state NEW -j ACCEPT
+##Rippled Cluster
+iptables -I OUTPUT -o $INTRANET_INTERFACE -s $INTRANET_IP -p udp --dport 51235 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTRANET_INTERFACE -s $INTRANET_IP -p udp --dport 51235 -m state --state NEW -j ACCEPT
 
 #####---------------Internet
+##Rippled network
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 ##Send Email
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p tcp --dport 25 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p tcp --dport 25 -m state --state NEW -j ACCEPT
 
 ##HTTP
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p tcp --dport 80 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p tcp --dport 80 -m state --state NEW -j ACCEPT
 
 ##Encrypted HTTP
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p tcp --dport 443 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p tcp --dport 443 -m state --state NEW -j ACCEPT
 
 ##DNS servers
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 53 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 53 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p udp --dport 53 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p udp --dport 53 -m state --state NEW -j ACCEPT
 
 #System ports
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NEW -j ACCEPT
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p tcp --dport 43 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p udp --dport 123 -m state --state NEW  -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p udp --dport 67 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP -p udp --dport 68 -m state --state NEW -j ACCEPT
 
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p tcp --dport 43 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p udp --dport 123 -m state --state NEW  -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p udp --dport 67 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -s $INTERNET_IP6 -p udp --dport 68 -m state --state NEW -j ACCEPT
