@@ -97,7 +97,6 @@ iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp  --dport 51235 -m 
 #####---------------Intranet
 ##Rippled Cluster
 iptables -I OUTPUT -o $INTRANET_INTERFACE -s $INTRANET_IP -p udp --dport 51235 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTRANET_INTERFACE -s $INTRANET_IP -p udp --dport 51235 -m state --state NEW -j ACCEPT
 
 #####---------------Internet
 ##Rippled network
