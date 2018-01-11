@@ -96,12 +96,12 @@ iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp  --dport 51235 -m 
 
 #####---------------Intranet
 ##Rippled Cluster
-iptables -I OUTPUT -o $INTRANET_INTERFACE -p udp --dport 51235 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTRANET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 #####---------------Internet
 ##Rippled network
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+
 ##Send Email
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
