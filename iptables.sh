@@ -13,13 +13,12 @@ INTRANET_IP="10.xx.xx.xx/32"
 ## Loopback
 LOOPBACK_IP="127.0.0.0/8"
 LOOPBACK_IP6="::1/128"
+LOOPBACK_INTERFACE="lo"
 
 ## VPN
 VPN_IP="10.xx.xx.xxx/32"		#VPN Server's subnet
 VPN_IP6="fdb9:xxxx:xxxxl::/72"
 VPN_SERVER="xx.xx.xx.xx"		#VPN server's IP
-
-LOOPBACK_INTERFACE="lo"
 PERSONAL_TUNNEL="tun0"
 
 #--------------------------------- POLICIES ---------------------------------# 
@@ -90,7 +89,7 @@ iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 22 -m stat
 
 ##Rippled
 iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
-iptables -A INPUT -i $INTRANET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+iptables -A INPUT -i $INTRANET_INTERFACE -d $INTRANET_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 ####-------------------------------------------------------
 #Allow specific outgoing connections
