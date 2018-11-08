@@ -7,7 +7,6 @@ set t_Co=256				"Enable 256 bit color
 set background=dark			"Tells Vim that the background color is black
 filetype indent plugin on	"Automatic detection, indenting, and highlighting based on file type
 syntax enable				"Turns on syntax highlighting
-colorscheme slate			"Defines the scheme
 set nocompatible			"Use Vim defaults
 set wildmenu				"Automatically complete :commands by pressing tab
 set cmdheight=2				"Set the command line height to two lines
@@ -45,7 +44,16 @@ nnoremap <space> za
 "au is an autocommand that watches for events (FileType) that match patterns
 	"(html) then runs a particular command (setlocal ...)
 
+"HTML
 au FileType html,css setlocal tabstop=2 softtabstop=2 shiftwidth=2 tw=80
 
+"Python
+au FileType py setlocal tabstop=4 softtabstop=4 shiftwidth=4 tw=80
+
+"R
+"
+"To run R outside of nvim's terminal emulator
+"let R_in_buffer = 0
+"
 "Turn Spelling off in R
 au Filetype r set nospell
