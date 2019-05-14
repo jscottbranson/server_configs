@@ -128,3 +128,26 @@ ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NE
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
+
+#####---------------Internet
+#Logging
+iptables -N LOGGING
+iptables -A INPUT -j LOGGING
+iptables -A OUTPUT -j LOGGING
+iptables -A LOGGING -m limit --limit 20/min -j LOG --log-prefix "iptables: " --log-level 4
+iptables -A LOGGING -j DROP
+
+ip6tables -N LOGGING
+ip6tables -A INPUT -j LOGGING
+ip6tables -A OUTPUT -j LOGGING
+ip6tables -A LOGGING -m limit --limit 20/min -j LOG --log-prefix "iptables: " --log-level 4
+ip6tables -A LOGGING -j DROP
+
+#Change the iptables logfile location from '/var/log/messages':
+# 1. create or edit the file: '/etc/rsyslog.d/iptables.conf'
+# 2. Add the following into iptables.conf (omit the # and tabs/spaces):
+#		:msg, startswith, "iptables: " -/var/log/iptables.log
+#		& stop
+#		:msg, regex, "^\[ *[0-9]*\.[0-9]*\] iptables: " -/var/log/iptables.log
+#		& stop
+
