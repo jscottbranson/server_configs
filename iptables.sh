@@ -21,6 +21,12 @@ VPN_IP6="fdb9:xxxx:xxxxl::/72"
 VPN_SERVER="xx.xx.xx.xx"		#VPN server's IP
 PERSONAL_TUNNEL="tun0"
 
+## DNS Servers - these must be the same as you have set in /etc/resolv.conf
+### On RHEL based distros, this can be set in ifcfg
+### The 208.67.x.x IPs are for OpenDNS & 1.1.1.1 is Cloudflare 
+DNS_IPS="208.67.222.222,208.67.220.220,1.1.1.1"
+DNS_IPS6="2620:119:53::53,2620:119:35::53"
+
 #--------------------------------- POLICIES ---------------------------------# 
 
 ####-------------------------------------------------------
@@ -115,8 +121,8 @@ iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NE
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
 
 ##DNS servers
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 53 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 53 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -o $INTERNET_INTERFACE -d $DNS_IPS -p udp --dport 53 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -o $INTERNET_INTERFACE -d $DNS_IPS6 -p udp --dport 53 -m state --state NEW -j ACCEPT
 
 #System ports
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NEW -j ACCEPT
@@ -143,7 +149,8 @@ ip6tables -A OUTPUT -j LOGGING
 ip6tables -A LOGGING -m limit --limit 20/min -j LOG --log-prefix "iptables: " --log-level 4
 ip6tables -A LOGGING -j DROP
 
-#Change the iptables logfile location from '/var/log/messages':
+#(CentOS) Change the iptables logfile location from '/var/log/messages':
+#
 # 1. create or edit the file: '/etc/rsyslog.d/iptables.conf'
 # 2. Add the following into iptables.conf (omit the # and tabs/spaces):
 #		:msg, startswith, "iptables: " -/var/log/iptables.log
