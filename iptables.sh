@@ -27,6 +27,13 @@ PERSONAL_TUNNEL="tun0"
 DNS_IPS="208.67.222.222,208.67.220.220,1.1.1.1"
 DNS_IPS6="2620:119:53::53,2620:119:35::53"
 
+## Mail Servers
+### Servers typically only send mail to specific mail servers. Thus, outgoing connections to
+### port 25 can generally be restricted to mail servers you control. If your server doesn't send
+### mail on port 25, then comment the below rules
+MAIL_SERVER="x.x.x.x"
+MAIL_SERVER6="xx:xx"
+
 #--------------------------------- POLICIES ---------------------------------# 
 
 ####-------------------------------------------------------
@@ -89,54 +96,52 @@ ip6tables -I FORWARD -m rt --rt-type 0 -j DROP
 ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 
 ####-------------------------------------------------------
-#Server specific incoming connections
-##SSH
+# Incoming Connections
+## SSH
 iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
-##Rippled
+## Rippled Peer Protocol
 iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
-iptables -A INPUT -i $INTRANET_INTERFACE -d $INTRANET_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+#iptables -A INPUT -i $INTRANET_INTERFACE -d $INTRANET_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 ####-------------------------------------------------------
-#Allow specific outgoing connections
+# Outgoing Connections
 
 #####---------------Intranet
-##Rippled Cluster
+## Rippled Cluster
 iptables -I OUTPUT -o $INTRANET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 #####---------------Internet
-##Rippled network
+## Rippled Peer Protocol
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
-##Send Email
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 25 -m state --state NEW -j ACCEPT
+## Email
+#iptables -I OUTPUT -o $INTERNET_INTERFACE -d $MAIL_SERVER -p tcp --dport 25 -m state --state NEW -j ACCEPT
+#ip6tables -I OUTPUT -o $INTERNET_INTERFACE -d $MAIL_SERVER6 -p tcp --dport 25 -m state --state NEW -j ACCEPT
 
-##HTTP
+## HTTP
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
 
-##Encrypted HTTP
+## Encrypted HTTP (HTTPS)
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
 
-##DNS servers
+## DNS Servers
 iptables -I OUTPUT -o $INTERNET_INTERFACE -d $DNS_IPS -p udp --dport 53 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -d $DNS_IPS6 -p udp --dport 53 -m state --state NEW -j ACCEPT
 
-#System ports
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NEW -j ACCEPT
+## System Ports
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
 iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
 
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 43 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
 
-#####---------------Internet
-#Logging
+####-------------------------------------------------------
+# Logging
 iptables -N LOGGING
 iptables -A INPUT -j LOGGING
 iptables -A OUTPUT -j LOGGING
