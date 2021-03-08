@@ -2,7 +2,7 @@
 
 #--------------------------------- VARIABLES ---------------------------------# 
 ## Device name & IP address for the server's WAN connection
-INTERNET_INTERFACE="eth0"
+INTERNET_INTERFACE="eno1"
 SERVER_IP="xxx.xxx.xxx.xxx"
 SERVER_IP6="xxx:xxxx::"
 
@@ -15,12 +15,6 @@ LOOPBACK_IP="127.0.0.0/8"
 LOOPBACK_IP6="::1/128"
 LOOPBACK_INTERFACE="lo"
 
-## VPN
-VPN_IP="10.xx.xx.xxx/32"		#VPN Server's subnet
-VPN_IP6="fdb9:xxxx:xxxxl::/72"
-VPN_SERVER="xx.xx.xx.xx"		#VPN server's IP
-PERSONAL_TUNNEL="tun0"
-
 ## DNS Servers - these must be the same as you have set in /etc/resolv.conf
 ### On RHEL based distros, this can be set in ifcfg
 ### The 208.67.x.x IPs are for OpenDNS & 1.1.1.1 is Cloudflare 
@@ -31,8 +25,8 @@ DNS_IPS6="2620:119:53::53,2620:119:35::53"
 ### Servers typically only send mail to specific mail servers. Thus, outgoing connections to
 ### port 25 can generally be restricted to mail servers you control. If your server doesn't send
 ### mail on port 25, then comment the below rules
-MAIL_SERVER="x.x.x.x"
-MAIL_SERVER6="xx:xx"
+#MAIL_SERVER="x.x.x.x"
+#MAIL_SERVER6="xx:xx"
 
 #--------------------------------- POLICIES ---------------------------------# 
 
@@ -100,45 +94,47 @@ ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 ## SSH
 iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
+## DHCPv6
+iptables -A INPUT -p udp --dport 546 -m state --state NEW -j ACCEPT
+
 ## Rippled Peer Protocol
-iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
-#iptables -A INPUT -i $INTRANET_INTERFACE -d $INTRANET_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+#iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+#ip6tables -A INPUT -i $INTRANET_INTERFACE -d $INTRANET_IP6 -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 ####-------------------------------------------------------
 # Outgoing Connections
 
 #####---------------Intranet
-## Rippled Cluster
-iptables -I OUTPUT -o $INTRANET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 #####---------------Internet
 ## Rippled Peer Protocol
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 51235 -m state --state NEW -j ACCEPT
+#iptables -I OUTPUT -p tcp --dport 51235 -m state --state NEW -j ACCEPT
 
 ## Email
 #iptables -I OUTPUT -o $INTERNET_INTERFACE -d $MAIL_SERVER -p tcp --dport 25 -m state --state NEW -j ACCEPT
 #ip6tables -I OUTPUT -o $INTERNET_INTERFACE -d $MAIL_SERVER6 -p tcp --dport 25 -m state --state NEW -j ACCEPT
 
 ## HTTP
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 80 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
 
 ## Encrypted HTTP (HTTPS)
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p tcp --dport 443 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -p tcp --dport 443 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -p tcp --dport 443 -m state --state NEW -j ACCEPT
 
 ## DNS Servers
-iptables -I OUTPUT -o $INTERNET_INTERFACE -d $DNS_IPS -p udp --dport 53 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -d $DNS_IPS6 -p udp --dport 53 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -d $DNS_IPS -p udp --dport 53 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -d $DNS_IPS6 -p udp --dport 53 -m state --state NEW -j ACCEPT
 
 ## System Ports
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
-iptables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -p udp --dport 123 -m state --state NEW  -j ACCEPT
+iptables -A OUTPUT -p udp --dport 67 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -p udp --dport 68 -m state --state NEW -j ACCEPT
 
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 123 -m state --state NEW  -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 67 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -o $INTERNET_INTERFACE -p udp --dport 68 -m state --state NEW -j ACCEPT
+ip6tables -A OUTPUT -p udp --dport 123 -m state --state NEW  -j ACCEPT
+ip6tables -A OUTPUT -p udp --dport 67 -m state --state NEW -j ACCEPT
+ip6tables -A OUTPUT -p udp --dport 68 -m state --state NEW -j ACCEPT
+ip6tables -A OUTPUT -p udp --dport 547 -m state --state NEW -j ACCEPT
 
 ####-------------------------------------------------------
 # Logging
