@@ -92,10 +92,10 @@ ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 ####-------------------------------------------------------
 # Incoming Connections
 ## SSH
-iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 22 -m state --state NEW -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
 ## DHCPv6
-iptables -A INPUT -p udp --dport 546 -m state --state NEW -j ACCEPT
+ip6tables -A INPUT -p udp --dport 546 -m state --state NEW -j ACCEPT
 
 ## Rippled Peer Protocol
 #iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
