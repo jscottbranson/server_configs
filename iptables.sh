@@ -94,8 +94,10 @@ ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 ## SSH
 iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
-## DHCPv6
-ip6tables -A INPUT -p udp --dport 546 -m state --state NEW -j ACCEPT
+## DHCP
+#iptables -A INPUT -p tcp --dport 67 -m state --state NEW -j ACCEPT
+#iptables -A INPUT -p tcp --dport 68 -m state --state NEW -j ACCEPT
+#ip6tables -A INPUT -p udp --dport 546 -m state --state NEW -j ACCEPT
 
 ## Rippled Peer Protocol
 #iptables -A INPUT -i $INTERNET_INTERFACE -d $SERVER_IP -p tcp --dport 51235 -m state --state NEW -j ACCEPT
@@ -123,8 +125,10 @@ iptables -I OUTPUT -p tcp --dport 443 -m state --state NEW -j ACCEPT
 ip6tables -I OUTPUT -p tcp --dport 443 -m state --state NEW -j ACCEPT
 
 ## DNS Servers
-iptables -I OUTPUT -d $DNS_IPS -p udp --dport 53 -m state --state NEW -j ACCEPT
-ip6tables -I OUTPUT -d $DNS_IPS6 -p udp --dport 53 -m state --state NEW -j ACCEPT
+iptables -I OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT
+ip6tables -I OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT
+#iptables -I OUTPUT -d $DNS_IPS -p udp --dport 53 -m state --state NEW -j ACCEPT
+#ip6tables -I OUTPUT -d $DNS_IPS6 -p udp --dport 53 -m state --state NEW -j ACCEPT
 
 ## System Ports
 iptables -A OUTPUT -p udp --dport 123 -m state --state NEW  -j ACCEPT
