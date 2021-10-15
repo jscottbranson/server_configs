@@ -95,8 +95,8 @@ ip6tables -I OUTPUT -m rt --rt-type 0 -j DROP
 iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
 ## DHCP
-#iptables -A INPUT -p tcp --dport 67 -m state --state NEW -j ACCEPT
-#iptables -A INPUT -p tcp --dport 68 -m state --state NEW -j ACCEPT
+#iptables -A INPUT -p udp --dport 67 -m state --state NEW -j ACCEPT
+#iptables -A INPUT -p udp --dport 68 -m state --state NEW -j ACCEPT
 #ip6tables -A INPUT -p udp --dport 546 -m state --state NEW -j ACCEPT
 
 ## Rippled Peer Protocol
