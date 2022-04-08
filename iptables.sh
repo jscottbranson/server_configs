@@ -47,13 +47,15 @@ ip6tables -P OUTPUT DROP
 ip6tables -P FORWARD DROP
 
 #Allow loopback traffic while rejecting traffic to 127.0.0.0/8 that isn't on lo
-iptables -I INPUT -i $LOOPBACK_INTERFACE -j ACCEPT
-iptables -I OUTPUT -o $LOOPBACK_INTERFACE -j ACCEPT
-iptables -I INPUT ! -i $LOOPBACK_INTERFACE -d $LOOPBACK_IP -j DROP
+iptables -I INPUT -i $LOOPBACK_INTERFACE -s $LOOPBACK_IP -d $LOOPBACK_IP -j ACCEPT
+#iptables -I INPUT ! -i $LOOPBACK_INTERFACE -d $LOOPBACK_IP -j DROP
+#iptables -I INPUT -i $LOOPBACK_INTERFACE -j ACCEPT
+#iptables -I OUTPUT -o $LOOPBACK_INTERFACE -j ACCEPT
 
-ip6tables -I INPUT -i $LOOPBACK_INTERFACE -j ACCEPT
-ip6tables -I OUTPUT -o $LOOPBACK_INTERFACE -j ACCEPT
-ip6tables -I INPUT ! -i $LOOPBACK_INTERFACE -d $LOOPBACK_IP6 -j DROP
+ip6tables -I INPUT -i $LOOPBACK_INTERFACE -s $LOOPBACK_IP6 -d $LOOPBACK_IP6 -j ACCEPT
+#ip6tables -I INPUT ! -i $LOOPBACK_INTERFACE -d $LOOPBACK_IP6 -j DROP
+#ip6tables -I INPUT -i $LOOPBACK_INTERFACE -j ACCEPT
+#ip6tables -I OUTPUT -o $LOOPBACK_INTERFACE -j ACCEPT
 
 #Allow existing connections
 iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
